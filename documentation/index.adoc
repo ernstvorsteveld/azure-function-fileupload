@@ -1,0 +1,100 @@
+= Commands
+
+== Create environment
+
+.Local project initialization
+[source,bash]
+----
+# Init function project for python azure function
+func init --python
+
+# Create function
+func new --name  BlobToS3Persister --template "HTTP trigger" --authlevel "anonymous"
+
+# Run the function locally
+func start
+
+# Login into Azure
+az login
+
+# Track automatically the names of your created resources
+az config param-persist on
+----
+
+.Remote project groundwork and install the function app
+[source,bash]
+----
+# List Azure locations
+az account list-locations
+
+# From the response use the "name" attribute
+# Create Function in Azure
+az group create --name BlobToS3Persister-rg --location germanywestcentral
+
+# Create a general-purpose storage account in your resource group and region
+az storage account create --name azfs3test --sku Standard_LRS
+
+# Create the function app
+az functionapp create --consumption-plan-location westeurope --runtime python --runtime-version 3.8 --functions-version 3 --name BlobToS3Persister --os-type linux
+----
+
+.Deploy the function project
+[source,bash]
+----
+# Deploy local function to remote
+func azure functionapp publish BlobToS3Persister
+----
+
+.Remove
+[source,bash]
+----
+az group delete --name BlobToS3Persister-rg
+----
+
+The function is accessible https://blobtos3persister.azurewebsites.net/api/blobtos3persister[here].
+
+.Curl examples
+[source,bash]
+----
+# POST data
+curl -X POST --upload-file data.json https://blobtos3persister.azurewebsites.net/api/blobtos3persister\?name\=John%20Doe
+
+# POST file
+curl -X POST \
+-F "file=@./test.jpg;type=image/jpg" \
+https://blobtos3persister.azurewebsites.net/api/blobtos3persister \
+--output kanweg.jpg
+
+
+# GET
+curl \
+-H "Content-Type: media/jpg" \
+-F "image=@./test.jpg" \
+https://blobtos3persister.azurewebsites.net/api/blobtos3persister\?name\=John%20Doe
+----
+
+.Curl localhost
+[source,bash]
+----
+curl -X POST \
+-H "Content-Type: image/jpg" \
+-F "file=@./test.jpg;type=image/jpg" \
+http://localhost:7071/api/BlobToS3Persister \
+--output kanweg.jpg
+
+curl -X POST --upload-file data.json \
+-H "Content-Type: application/json" \
+http://localhost:7071/api/BlobToS3Persister
+
+curl -X POST \
+-F "file=@./test.jpg;type=image/jpg" \
+http://localhost:7071/api/BlobToS3Persister \
+--output kanweg.jpg
+
+----
+
+.Delete the function
+[source,bash]
+----
+az functionapp delete --name BlobToS3Persister --resource-group azfs3test
+----

@@ -71,6 +71,12 @@ curl \
 -H "Content-Type: media/jpg" \
 -F "image=@./test.jpg" \
 https://blobtos3persister.azurewebsites.net/api/blobtos3persister\?name\=John%20Doe
+
+curl -X POST \
+-F "file=@./test.jpg;type=image/jpg" \
+https://blobtos3persister.azurewebsites.net/api/blobtos3persister \
+--output kanweg.jpg
+
 ----
 
 .Curl localhost
@@ -97,4 +103,10 @@ http://localhost:7071/api/BlobToS3Persister \
 [source,bash]
 ----
 az functionapp delete --name BlobToS3Persister --resource-group azfs3test
+----
+
+.Start localhost
+[source,bash]
+----
+func start
 ----

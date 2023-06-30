@@ -1,3 +1,6 @@
-.vscode/
+
 .azure/
 __pycache__
+
+.python_packages
+.venv
